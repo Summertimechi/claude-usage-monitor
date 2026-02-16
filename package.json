@@ -1,7 +1,7 @@
 {
-  "name": "claude-usage-widget",
+  "name": "claude-usage-monitor",
   "version": "2.0.0",
-  "description": "Desktop widget showing Claude.ai usage stats via OAuth API",
+  "description": "Desktop menubar monitor showing Claude.ai usage stats via OAuth API",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",

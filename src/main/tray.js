@@ -16,10 +16,10 @@ function createTray(popupWindow) {
   }
 
   tray = new Tray(icon);
-  tray.setToolTip('Claude Usage Widget');
+  tray.setToolTip('Claude Usage Monitor');
 
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show Widget', click: () => showPopup(popupWindow) },
+    { label: 'Show Monitor', click: () => showPopup(popupWindow) },
     { label: 'Refresh Now', click: () => {
       try {
         if (popupWindow && !popupWindow.isDestroyed()) {
