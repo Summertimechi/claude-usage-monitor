@@ -1,29 +1,66 @@
 const { execSync } = require('child_process');
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 const KEYCHAIN_SERVICE = 'Claude Code-credentials';
 const OAUTH_CLIENT_ID = '9d1c250a-e61b-44d9-88ed-5944d1962f5e';
 const USAGE_URL = 'https://api.anthropic.com/api/oauth/usage';
 const TOKEN_URL = 'https://console.anthropic.com/v1/oauth/token';
 
-function readKeychain() {
-  const raw = execSync(
-    `security find-generic-password -s "${KEYCHAIN_SERVICE}" -w`,
-    { encoding: 'utf8', timeout: 5000 }
-  ).trim();
+// --- Cross-platform credential storage ---
+
+function getCredentialsFilePath() {
+  return path.join(os.homedir(), '.claude', '.credentials.json');
+}
+
+function readCredentials() {
+  // macOS: read from Keychain
+  if (process.platform === 'darwin') {
+    const raw = execSync(
+      `security find-generic-password -s "${KEYCHAIN_SERVICE}" -w`,
+      { encoding: 'utf8', timeout: 5000 }
+    ).trim();
+    return JSON.parse(raw);
+  }
+
+  // Windows/Linux: read from ~/.claude/.credentials.json
+  const credPath = getCredentialsFilePath();
+  if (!fs.existsSync(credPath)) {
+    throw new Error(
+      'No credentials found. Run Claude Code and log in first.\n' +
+      'Expected file: ' + credPath
+    );
+  }
+  const raw = fs.readFileSync(credPath, 'utf8');
   return JSON.parse(raw);
 }
 
-function writeKeychain(creds) {
-  const json = JSON.stringify(creds);
-  try {
-    execSync(`security delete-generic-password -s "${KEYCHAIN_SERVICE}"`, { stdio: 'ignore' });
-  } catch { /* may not exist */ }
-  execSync(
-    `security add-generic-password -s "${KEYCHAIN_SERVICE}" -a "claude-code" -w "${json.replace(/"/g, '\\"')}" -U`,
-    { stdio: 'ignore' }
-  );
+function writeCredentials(creds) {
+  // macOS: write to Keychain
+  if (process.platform === 'darwin') {
+    const json = JSON.stringify(creds);
+    try {
+      execSync(`security delete-generic-password -s "${KEYCHAIN_SERVICE}"`, { stdio: 'ignore' });
+    } catch { /* may not exist */ }
+    execSync(
+      `security add-generic-password -s "${KEYCHAIN_SERVICE}" -a "claude-code" -w "${json.replace(/"/g, '\\"')}" -U`,
+      { stdio: 'ignore' }
+    );
+    return;
+  }
+
+  // Windows/Linux: write to ~/.claude/.credentials.json
+  const credPath = getCredentialsFilePath();
+  const dir = path.dirname(credPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(credPath, JSON.stringify(creds, null, 2), 'utf8');
 }
+
+// --- HTTP client ---
 
 function httpRequest(url, options, body) {
   return new Promise((resolve, reject) => {
@@ -45,10 +82,12 @@ function httpRequest(url, options, body) {
   });
 }
 
-async function refreshToken(refreshToken) {
+// --- Token refresh ---
+
+async function refreshToken(refreshTok) {
   const body = JSON.stringify({
     grant_type: 'refresh_token',
-    refresh_token: refreshToken,
+    refresh_token: refreshTok,
     client_id: OAUTH_CLIENT_ID,
   });
 
@@ -64,8 +103,10 @@ async function refreshToken(refreshToken) {
   return resp.data;
 }
 
+// --- Main fetch ---
+
 async function fetchUsage() {
-  const creds = readKeychain();
+  const creds = readCredentials();
   const oauth = creds.claudeAiOauth;
 
   if (!oauth || !oauth.accessToken) {
@@ -87,11 +128,11 @@ async function fetchUsage() {
     console.log('Token expired, refreshing...');
     const newTokens = await refreshToken(oauth.refreshToken);
 
-    // Update keychain with new tokens
+    // Update stored credentials with new tokens
     oauth.accessToken = newTokens.access_token;
     oauth.refreshToken = newTokens.refresh_token;
     oauth.expiresAt = Date.now() + (newTokens.expires_in * 1000);
-    writeKeychain(creds);
+    writeCredentials(creds);
     console.log('Token refreshed, expires in', newTokens.expires_in, 'seconds');
 
     // Retry with new token
@@ -112,7 +153,8 @@ async function fetchUsage() {
   return normalizeUsageData(resp.data);
 }
 
-// Convert API response to the widget's data format
+// --- Data normalization ---
+
 function normalizeUsageData(raw) {
   const data = {
     timestamp: new Date().toISOString(),
