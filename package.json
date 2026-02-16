@@ -1,0 +1,19 @@
+{
+  "name": "claude-usage-widget",
+  "version": "2.0.0",
+  "description": "Desktop widget showing Claude.ai usage stats via OAuth API",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  }
+}

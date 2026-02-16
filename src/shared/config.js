@@ -1,0 +1,9 @@
+const config = {
+  REFRESH_INTERVAL_MS: 60 * 1000,
+  MIN_REFRESH_INTERVAL_MS: 30 * 1000,
+  WIDGET_WIDTH: 360,
+  WIDGET_HEIGHT: 480,
+  NOTIFICATION_THRESHOLD_PERCENT: 80,
+};
+
+module.exports = config;

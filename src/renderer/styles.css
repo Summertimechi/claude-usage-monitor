@@ -1,0 +1,303 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  color: #1a1a1a;
+  background: #ffffff;
+  overflow: hidden;
+  user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Header — draggable region for the frameless window */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  -webkit-app-region: drag;
+  cursor: grab;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.header-right {
+  display: flex;
+  gap: 4px;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.indicator.active {
+  background: #22c55e;
+}
+
+.indicator.expired {
+  background: #ef4444;
+}
+
+.icon-btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  color: #6b7280;
+  -webkit-app-region: no-drag;
+}
+
+.icon-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.meta-info {
+  padding: 6px 14px;
+  font-size: 11px;
+  color: #9ca3af;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Main content */
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+}
+
+#loading {
+  text-align: center;
+  color: #9ca3af;
+  padding: 40px 0;
+}
+
+/* Usage cards */
+.usage-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.card-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+
+/* Meter row (sub-item within a card, e.g. All models / Sonnet only) */
+.meter-row {
+  padding: 6px 0;
+}
+
+.meter-row + .meter-row {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 6px;
+  padding-top: 10px;
+}
+
+.meter-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+/* Progress bars */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #6366f1;
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+.progress-fill.warning {
+  background: #f59e0b;
+}
+
+.progress-fill.danger {
+  background: #ef4444;
+}
+
+.progress-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Reset time */
+.reset-time {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+/* Extra usage spending */
+.extra-usage-card .spending-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.spent-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.spent-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.limit-badge {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
+/* Raw text fallback */
+.raw-line {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #374151;
+  padding: 1px 0;
+}
+
+/* No data */
+.no-data {
+  color: #9ca3af;
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 13px;
+}
+
+/* Error */
+.error {
+  color: #ef4444;
+  padding: 10px;
+  background: #fef2f2;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Settings panel */
+#settings-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+#settings-panel h3 {
+  margin-bottom: 4px;
+}
+
+#settings-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+#settings-panel input[type="number"] {
+  width: 60px;
+  padding: 4px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.settings-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#btn-save-settings {
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  background: #6366f1;
+  color: white;
+  border: none;
+}
+
+#btn-save-settings:hover {
+  background: #4f46e5;
+}
+
+#btn-cancel-settings {
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+}
+
+#btn-cancel-settings:hover {
+  background: #e5e7eb;
+}

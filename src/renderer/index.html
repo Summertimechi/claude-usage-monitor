@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Claude Usage</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="widget">
+    <header id="header">
+      <div class="header-left">
+        <span id="session-indicator" class="indicator"></span>
+        <span class="title">Claude Usage</span>
+      </div>
+      <div class="header-right">
+        <button id="btn-refresh" class="icon-btn" title="Refresh Now">&#x21bb;</button>
+        <button id="btn-settings" class="icon-btn" title="Settings">&#x2699;</button>
+      </div>
+    </header>
+
+    <div id="last-fetch" class="meta-info">Last updated: --</div>
+
+    <main id="content">
+      <div id="loading">Loading usage data...</div>
+      <div id="usage-display" style="display:none;"></div>
+      <div id="error-display" style="display:none;" class="error"></div>
+    </main>
+
+    <div id="settings-panel" style="display:none;">
+      <h3>Settings</h3>
+      <label>
+        Refresh interval (seconds):
+        <input type="number" id="input-interval" min="30" max="3600" value="60">
+      </label>
+      <label>
+        <input type="checkbox" id="input-startup"> Launch on startup
+      </label>
+      <label>
+        <input type="checkbox" id="input-notifications" checked> Notifications
+      </label>
+      <label>
+        Alert threshold (%):
+        <input type="number" id="input-threshold" min="10" max="100" value="80">
+      </label>
+      <div class="settings-buttons">
+        <button id="btn-save-settings">Save</button>
+        <button id="btn-cancel-settings">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
