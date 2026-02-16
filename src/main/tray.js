@@ -8,8 +8,8 @@ function createTray(popupWindow) {
   let icon;
 
   if (process.platform === 'darwin') {
-    // Use Claude's template icon — macOS auto-colors for light/dark mode
-    icon = nativeImage.createFromPath(path.join(assetsDir, 'TrayIconTemplate.png'));
+    // Usage bar chart icon — macOS auto-colors for light/dark mode
+    icon = nativeImage.createFromPath(path.join(assetsDir, 'UsageTemplate.png'));
     icon.setTemplateImage(true);
   } else {
     icon = nativeImage.createFromPath(path.join(assetsDir, 'icon-win.ico'));
