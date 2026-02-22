@@ -15,5 +15,20 @@
   "devDependencies": {
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.johnschuch.claude-usage-monitor",
+    "productName": "Claude Usage Monitor",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "dir",
+      "extendInfo": {
+        "LSUIElement": true
+      }
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ]
   }
 }

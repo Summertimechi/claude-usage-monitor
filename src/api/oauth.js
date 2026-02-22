@@ -18,11 +18,27 @@ function getCredentialsFilePath() {
 function readCredentials() {
   // macOS: read from Keychain
   if (process.platform === 'darwin') {
-    const raw = execSync(
-      `security find-generic-password -s "${KEYCHAIN_SERVICE}" -w`,
-      { encoding: 'utf8', timeout: 5000 }
-    ).trim();
-    return JSON.parse(raw);
+    let raw;
+    try {
+      raw = execSync(
+        `security find-generic-password -s "${KEYCHAIN_SERVICE}" -a "claude-code" -w`,
+        { encoding: 'utf8', timeout: 5000 }
+      ).trim();
+    } catch (err) {
+      throw new Error(
+        'Could not read credentials from macOS Keychain. Run Claude Code and log in first.\n' +
+        'Keychain service: ' + KEYCHAIN_SERVICE + '\n' +
+        'Detail: ' + err.message
+      );
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (err) {
+      throw new Error(
+        'Keychain credentials are not valid JSON. Try logging out and back into Claude Code.\n' +
+        'Detail: ' + err.message
+      );
+    }
   }
 
   // Windows/Linux: read from ~/.claude/.credentials.json
@@ -33,8 +49,17 @@ function readCredentials() {
       'Expected file: ' + credPath
     );
   }
-  const raw = fs.readFileSync(credPath, 'utf8');
-  return JSON.parse(raw);
+  let raw;
+  try {
+    raw = fs.readFileSync(credPath, 'utf8');
+  } catch (err) {
+    throw new Error('Could not read credentials file: ' + err.message);
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    throw new Error('Credentials file contains invalid JSON: ' + err.message);
+  }
 }
 
 function writeCredentials(creds) {
@@ -42,7 +67,7 @@ function writeCredentials(creds) {
   if (process.platform === 'darwin') {
     const json = JSON.stringify(creds);
     try {
-      execSync(`security delete-generic-password -s "${KEYCHAIN_SERVICE}"`, { stdio: 'ignore' });
+      execSync(`security delete-generic-password -s "${KEYCHAIN_SERVICE}" -a "claude-code"`, { stdio: 'ignore' });
     } catch { /* may not exist */ }
     execSync(
       `security add-generic-password -s "${KEYCHAIN_SERVICE}" -a "claude-code" -w "${json.replace(/"/g, '\\"')}" -U`,
