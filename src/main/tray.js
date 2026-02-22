@@ -3,7 +3,7 @@ const path = require('path');
 
 let tray = null;
 
-function createTray(popupWindow) {
+function createTray(popupWindow, { getOpenAtLogin, setOpenAtLogin } = {}) {
   const assetsDir = path.join(__dirname, '..', '..', 'assets');
   let icon;
 
@@ -18,22 +18,28 @@ function createTray(popupWindow) {
   tray = new Tray(icon);
   tray.setToolTip('Claude Usage Monitor');
 
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show Monitor', click: () => showPopup(popupWindow) },
-    { label: 'Refresh Now', click: () => {
-      try {
-        if (popupWindow && !popupWindow.isDestroyed()) {
-          popupWindow.webContents.send('trigger-refresh');
-        }
-      } catch { /* ignore */ }
-    }},
-    { type: 'separator' },
-    { label: 'Quit', click: () => app.quit() },
-  ]);
+  function buildContextMenu() {
+    return Menu.buildFromTemplate([
+      { label: 'Show Monitor', click: () => showPopup(popupWindow) },
+      { label: 'Refresh Now', click: () => {
+        try {
+          if (popupWindow && !popupWindow.isDestroyed()) {
+            popupWindow.webContents.send('trigger-refresh');
+          }
+        } catch { /* ignore */ }
+      }},
+      { type: 'separator' },
+      { label: 'Launch at Login', type: 'checkbox', checked: getOpenAtLogin ? getOpenAtLogin() : false, click: (menuItem) => {
+        if (setOpenAtLogin) setOpenAtLogin(menuItem.checked);
+      }},
+      { type: 'separator' },
+      { label: 'Quit', click: () => app.quit() },
+    ]);
+  }
+
+  const contextMenu = buildContextMenu();
 
   if (process.platform === 'darwin') {
-    // macOS: left-click toggles popup, right-click shows context menu
-    // Do NOT use setContextMenu — it overrides the click event on macOS
     tray.on('click', (event, bounds) => {
       togglePopup(popupWindow, bounds);
     });
@@ -41,7 +47,6 @@ function createTray(popupWindow) {
       tray.popUpContextMenu(contextMenu);
     });
   } else {
-    // Windows: context menu always available, click also toggles popup
     tray.setContextMenu(contextMenu);
     tray.on('click', (event, bounds) => {
       togglePopup(popupWindow, bounds);

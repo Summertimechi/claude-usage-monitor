@@ -23,7 +23,7 @@
       "category": "public.app-category.utilities",
       "target": "dir",
       "extendInfo": {
-        "LSUIElement": true
+        "LSUIElement": false
       }
     },
     "files": [

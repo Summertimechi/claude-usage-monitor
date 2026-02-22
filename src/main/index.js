@@ -7,6 +7,14 @@ const config = require('../shared/config');
 const { checkAndNotify } = require('./notifications');
 const { getSettings, updateSettings } = require('./settings');
 
+function getOpenAtLogin() {
+  return app.getLoginItemSettings().openAtLogin;
+}
+
+function setOpenAtLogin(enabled) {
+  app.setLoginItemSettings({ openAtLogin: enabled });
+}
+
 let popupWindow = null;
 let refreshTimer = null;
 let isQuitting = false;
@@ -37,12 +45,8 @@ app.on('second-instance', () => {
 app.on('ready', async () => {
   if (!gotLock) return;
 
-  if (process.platform === 'darwin') {
-    app.dock.hide();
-  }
-
   popupWindow = createPopupWindow();
-  createTray(popupWindow);
+  createTray(popupWindow, { getOpenAtLogin, setOpenAtLogin });
   setupIPC();
 
   // Send cached data once renderer is ready
@@ -105,11 +109,11 @@ function createPopupWindow() {
   const win = new BrowserWindow({
     width: config.WIDGET_WIDTH,
     height: config.WIDGET_HEIGHT,
-    show: false,
+    show: true,
     frame: false,
     resizable: false,
     skipTaskbar: true,
-    alwaysOnTop: true,
+    alwaysOnTop: false,
     transparent: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -118,10 +122,6 @@ function createPopupWindow() {
     },
   });
   win.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
-
-  win.on('blur', () => {
-    if (!win.isDestroyed()) win.hide();
-  });
 
   return win;
 }
