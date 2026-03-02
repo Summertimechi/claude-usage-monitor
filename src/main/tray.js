@@ -41,7 +41,7 @@ function createTray(popupWindow, { getOpenAtLogin, setOpenAtLogin } = {}) {
 
   if (process.platform === 'darwin') {
     tray.on('click', (event, bounds) => {
-      togglePopup(popupWindow, bounds);
+      showPopup(popupWindow);
     });
     tray.on('right-click', () => {
       tray.popUpContextMenu(contextMenu);
@@ -49,7 +49,7 @@ function createTray(popupWindow, { getOpenAtLogin, setOpenAtLogin } = {}) {
   } else {
     tray.setContextMenu(contextMenu);
     tray.on('click', (event, bounds) => {
-      togglePopup(popupWindow, bounds);
+      showPopup(popupWindow);
     });
   }
 
