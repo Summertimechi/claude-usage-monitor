@@ -18,6 +18,7 @@ function setOpenAtLogin(enabled) {
 let popupWindow = null;
 let refreshTimer = null;
 let isQuitting = false;
+let consecutiveRateLimits = 0;
 
 // Prevent crashes from killing the app
 process.on('uncaughtException', (err) => {
@@ -91,10 +92,22 @@ async function doFetch() {
     );
 
     checkAndNotify(data, getSettings());
+    if (consecutiveRateLimits > 0) {
+      consecutiveRateLimits = 0;
+      startRefreshTimer(); // restore normal interval
+    }
   } catch (err) {
     if (isQuitting) return;
     console.error('Fetch failed:', err.message);
-    sendToRenderer('error', err.message);
+    if (err.message.includes('429') || err.message.includes('rate_limit')) {
+      consecutiveRateLimits++;
+      const backoff = Math.min(consecutiveRateLimits * 60, 300); // 60s, 120s, ... max 5min
+      console.log('Rate limited, backing off for', backoff, 'seconds');
+      if (refreshTimer) clearInterval(refreshTimer);
+      refreshTimer = setTimeout(() => { doFetch(); startRefreshTimer(); }, backoff * 1000);
+    } else {
+      sendToRenderer('error', err.message);
+    }
   }
 }
 

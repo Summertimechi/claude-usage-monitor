@@ -193,21 +193,21 @@ function normalizeUsageData(raw) {
   if (raw.five_hour) {
     data.planUsage.currentSession = {
       percent: Math.round(raw.five_hour.utilization),
-      resetTime: formatResetTime(raw.five_hour.resets_at),
+      resetsAt: raw.five_hour.resets_at,
     };
   }
 
   if (raw.seven_day) {
     data.planUsage.weeklyLimits.allModels = {
       percent: Math.round(raw.seven_day.utilization),
-      resetTime: formatResetTime(raw.seven_day.resets_at),
+      resetsAt: raw.seven_day.resets_at,
     };
   }
 
   if (raw.seven_day_sonnet) {
     data.planUsage.weeklyLimits.sonnetOnly = {
       percent: Math.round(raw.seven_day_sonnet.utilization),
-      resetTime: formatResetTime(raw.seven_day_sonnet.resets_at),
+      resetsAt: raw.seven_day_sonnet.resets_at,
     };
   }
 
@@ -224,15 +224,5 @@ function normalizeUsageData(raw) {
   return data;
 }
 
-function formatResetTime(isoString) {
-  if (!isoString) return null;
-  const diff = new Date(isoString) - new Date();
-  if (diff <= 0) return '0 min';
-  const hours = Math.floor(diff / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  if (hours > 0 && mins > 0) return `${hours} hr ${mins} min`;
-  if (hours > 0) return `${hours} hr`;
-  return `${mins} min`;
-}
 
 module.exports = { fetchUsage };

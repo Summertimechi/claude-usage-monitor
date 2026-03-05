@@ -3,7 +3,7 @@ const Store = require('electron-store');
 const store = new Store({
   defaults: {
     settings: {
-      refreshIntervalMs: 15 * 1000,
+      refreshIntervalMs: 30 * 1000,
       launchOnStartup: false,
       notificationsEnabled: true,
       notificationThresholdPercent: 80,

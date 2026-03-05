@@ -67,7 +67,7 @@ function renderUsageData(data) {
 
   // --- Current Session ---
   if (pu.currentSession) {
-    html += renderMeterCard('Current session', pu.currentSession.percent, pu.currentSession.resetTime);
+    html += renderMeterCard('Current session', pu.currentSession.percent, pu.currentSession.resetsAt);
   }
 
   // --- Weekly Limits ---
@@ -76,10 +76,10 @@ function renderUsageData(data) {
     html += '<div class="usage-card">';
     html += '<div class="card-header">Weekly limits</div>';
     if (wl.allModels) {
-      html += renderMeterRow('All models', wl.allModels.percent, wl.allModels.resetTime);
+      html += renderMeterRow('All models', wl.allModels.percent, wl.allModels.resetsAt);
     }
     if (wl.sonnetOnly) {
-      html += renderMeterRow('Sonnet only', wl.sonnetOnly.percent, wl.sonnetOnly.resetTime);
+      html += renderMeterRow('Sonnet only', wl.sonnetOnly.percent, wl.sonnetOnly.resetsAt);
     }
     html += '</div>';
   }
@@ -115,7 +115,7 @@ function renderUsageData(data) {
   usageDisplay.innerHTML = html;
 }
 
-function renderMeterCard(label, percent, resetTime) {
+function renderMeterCard(label, percent, resetsAt) {
   const colorClass = getColorClass(percent);
   let html = '<div class="usage-card">';
   html += `<div class="card-header">${escapeHTML(label)}</div>`;
@@ -127,14 +127,14 @@ function renderMeterCard(label, percent, resetTime) {
       <span class="progress-pct">${percent}%</span>
     </div>`;
   }
-  if (resetTime) {
-    html += `<div class="reset-time">Resets in ${escapeHTML(resetTime)}</div>`;
+  if (resetsAt) {
+    html += `<div class="reset-time">Resets in ${formatResetTime(resetsAt)}</div>`;
   }
   html += '</div>';
   return html;
 }
 
-function renderMeterRow(label, percent, resetTime) {
+function renderMeterRow(label, percent, resetsAt) {
   const colorClass = getColorClass(percent);
   let html = '<div class="meter-row">';
   html += `<div class="meter-label">${escapeHTML(label)}</div>`;
@@ -146,11 +146,22 @@ function renderMeterRow(label, percent, resetTime) {
       <span class="progress-pct">${percent}%</span>
     </div>`;
   }
-  if (resetTime) {
-    html += `<div class="reset-time">Resets in ${escapeHTML(resetTime)}</div>`;
+  if (resetsAt) {
+    html += `<div class="reset-time">Resets in ${formatResetTime(resetsAt)}</div>`;
   }
   html += '</div>';
   return html;
+}
+
+function formatResetTime(isoString) {
+  if (!isoString) return '--';
+  const diff = new Date(isoString) - new Date();
+  if (diff <= 0) return '0 min';
+  const hours = Math.floor(diff / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  if (hours > 0 && mins > 0) return `${hours} hr ${mins} min`;
+  if (hours > 0) return `${hours} hr`;
+  return `${mins} min`;
 }
 
 function getColorClass(percent) {
